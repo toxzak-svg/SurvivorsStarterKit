@@ -15,6 +15,7 @@ public partial class GameManager : Node
     private double _enemySpawnTimeLeft = 1;
 
     private EnemyManager _enemyManager;
+    private EraManager _eraManager;
 
     private ProgressBar _playerXpBar;
     private float _playerXp = 0;
@@ -30,7 +31,8 @@ public partial class GameManager : Node
     private Dictionary<EnemyPowerupType, int> _enemyPowerupsCount = new();
 
     private Label _gameTimeLabel;
-    public double GameTime { get; private set; } = 0;
+    
+    public double GameTime => _eraManager?.GameTime ?? 0;
 
     public event Action<Enemy, int> OnEnemyHit;
 
@@ -40,6 +42,11 @@ public partial class GameManager : Node
 
         _enemyManager = new(this);
         _enemySpawnTimeLeft = _enemyManager.SpawnDelay;
+
+        // Initialize EraManager
+        _eraManager = new EraManager();
+        AddChild(_eraManager);
+        _eraManager.Connect(EraManager.SignalName.EraChanged, Callable.From<EraManager.Era, double>(OnEraChanged));
 
         ProcessMode = ProcessModeEnum.Always;
 
@@ -55,6 +62,17 @@ public partial class GameManager : Node
         LoadPowerups();
         LoadEnemyPowerups();
     }
+    
+    private void OnEraChanged(EraManager.Era newEra, double gameTime)
+    {
+        // Update EnemyManager spawn pool based on era
+        _enemyManager.SetEra((int)newEra);
+        
+        // Update spawn rate based on era multiplier
+        _enemyManager.SetSpawnRate(_eraManager.SpawnRateMultiplier);
+        
+        GD.Print($"Era {newEra} started! Spawn rate multiplier: {_eraManager.SpawnRateMultiplier:F1}x");
+    }
 
     public override void _Process(double delta)
     {
@@ -68,8 +86,8 @@ public partial class GameManager : Node
             _enemyManager.SpawnBoss();
         }
 
-        GameTime += delta;
-        _gameTimeLabel.Text = $"{Mathf.FloorToInt(GameTime / 60):00}:{Mathf.FloorToInt(GameTime % 60):00}";
+        // Update time label from EraManager
+        _gameTimeLabel.Text = _eraManager.FormatTime();
 
         if (Player == null) return;
 

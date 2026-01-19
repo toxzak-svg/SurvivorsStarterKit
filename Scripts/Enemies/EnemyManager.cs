@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,8 +15,12 @@ internal class EnemyManager
     private readonly List<Enemy> _enemies = new();
     public List<Enemy> Enemies => _enemies;
 
+    // Era system
+    private int _currentEra = 0;
+    private Dictionary<int, List<EnemyClass>> _eraSpawnPools = new();
+
     // BONUSES
-    private List<EnemyClass> _enemyClasses = new() { EnemyClass.Minion };
+    private List<EnemyClass> _enemyClasses = new() { EnemyClass.Caveman };
     private int _lifepointsBonus = 0;
     private uint _damageBonus = 0;
     private float _movespeedBonus = 0;
@@ -27,12 +31,47 @@ internal class EnemyManager
 
         _enemyPrefabs = new()
         {
+            // Era 0: Stone Age
+            { EnemyClass.Caveman, (PackedScene)GD.Load("res://Prefabs/Enemies/caveman.tscn") },
+            
+            // Legacy enemies (will be phased out)
             { EnemyClass.Minion, (PackedScene)GD.Load("res://Prefabs/Enemies/enemy_minion.tscn") },
             { EnemyClass.Warrior, (PackedScene)GD.Load("res://Prefabs/Enemies/enemy_warrior.tscn") },
             { EnemyClass.Archer, (PackedScene)GD.Load("res://Prefabs/Enemies/enemy_archer.tscn") },
             { EnemyClass.Mage, (PackedScene)GD.Load("res://Prefabs/Enemies/enemy_mage.tscn") },
             { EnemyClass.Boss, (PackedScene)GD.Load("res://Prefabs/Enemies/enemy_boss.tscn") },
         };
+
+        // Initialize era spawn pools
+        _eraSpawnPools = new()
+        {
+            // Era 0: Stone Age (0:00 - 4:00)
+            { 
+                0, 
+                new List<EnemyClass> { EnemyClass.Caveman } 
+            },
+            // Future eras will be added as enemies are implemented
+        };
+    }
+
+    /// <summary>
+    /// Set the current era for enemy spawning
+    /// </summary>
+    public void SetEra(int era)
+    {
+        _currentEra = era;
+        if (_eraSpawnPools.ContainsKey(era))
+        {
+            _enemyClasses = _eraSpawnPools[era];
+        }
+    }
+    
+    /// <summary>
+    /// Set the spawn rate (enemies per second)
+    /// </summary>
+    public void SetSpawnRate(float spawnRate)
+    {
+        SpawnRate = spawnRate;
     }
 
     public void _PhysicsProcess(double delta)

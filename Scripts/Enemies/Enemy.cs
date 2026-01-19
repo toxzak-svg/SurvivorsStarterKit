@@ -2,11 +2,31 @@ using Godot;
 
 public enum EnemyClass
 {
-    Minion = 0,
-    Warrior = 1,
-    Archer = 2,
-    Mage = 3,
-
+    // Stone Age enemies (Era 0)
+    Caveman = 0,
+    RockThrower = 1,
+    
+    // Ancient Era enemies (Era 1)
+    Hoplite = 10,
+    Chariot = 11,
+    
+    // Medieval Era enemies (Era 2)
+    Knight = 20,
+    Archer = 21,
+    Priest = 22,
+    
+    // Modern Era enemies (Era 3)
+    Soldier = 30,
+    Tank = 31,
+    
+    // Future Era enemies (Era 4)
+    Cyborg = 40,
+    
+    // Legacy classes (will be phased out)
+    Minion = 99,
+    Warrior = 98,
+    Mage = 97,
+    
     Boss = 100
 }
 
