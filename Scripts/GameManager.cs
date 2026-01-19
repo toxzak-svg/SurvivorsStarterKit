@@ -140,7 +140,7 @@ public partial class GameManager : Node
 
     internal void EnemyKilled(float enemyXP)
     {
-        _playerXp += enemyXP;
+        _playerXp += enemyXP * (Player?.XPGainMultiplier ?? 1.0f);
         _playerXpBar.Value = _playerXp;
         if (_playerXp >= _maxPlayerXP)
         {

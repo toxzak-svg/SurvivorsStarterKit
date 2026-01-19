@@ -14,6 +14,10 @@ public partial class Player : CharacterBody3D
     [Export]
     private uint _lifepoints = MaxLifepoints;
 
+    // Stat Multipliers for God overrides
+    public virtual float XPGainMultiplier => 1.0f;
+    public virtual float XPPickupRange => 0.0f; // Default 0 for base player, specific gods have more
+
     // Get the gravity from the project settings to be synced with RigidBody nodes.
     public float gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
 
