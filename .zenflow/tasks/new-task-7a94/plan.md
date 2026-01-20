@@ -52,6 +52,7 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 Save to `{@artifacts_path}/plan.md`.
 
 ### [ ] Task: Project Bootstrap
+<!-- chat-id: 31d82a64-8409-43db-afa3-a6a1b32270a6 -->
 - Create Vite React TS app skeleton; add TypeScript config, ESLint + Prettier, Vitest, React Testing Library, Playwright
 - Add dependencies: three, @react-three/fiber, @react-three/drei, zustand, immer, zod, jszip, gifenc or gif.js
 - Scripts: build, dev, lint, typecheck, test, e2e
