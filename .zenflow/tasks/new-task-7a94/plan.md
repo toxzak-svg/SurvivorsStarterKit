@@ -59,6 +59,7 @@ Save to `{@artifacts_path}/plan.md`.
 - Verify: run `dev` boots app; `lint` passes; `typecheck` passes; `test` runs zero tests
 
 ### [ ] Task: Base Types & Schemas
+<!-- chat-id: 6d50b394-845c-44c3-b8e3-115dda406c62 -->
 - Add `src/types/{model.ts,pose.ts,project.ts}` per spec interfaces
 - Add zod schemas for Project and settings; export TypeScript types
 - Verify: typecheck succeeds; unit test compiles types
