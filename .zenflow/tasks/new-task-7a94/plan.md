@@ -36,7 +36,8 @@ Save to `{@artifacts_path}/spec.md` with:
 - Delivery phases (incremental, testable milestones)
 - Verification approach using project lint/test commands
 
-### [ ] Step: Planning
+### [x] Step: Planning
+<!-- chat-id: 63a8aa6e-7670-452e-a635-aa3072cbab2c -->
 
 Create a detailed implementation plan based on `{@artifacts_path}/spec.md`.
 
@@ -50,8 +51,119 @@ If the feature is trivial and doesn't warrant full specification, update this wo
 
 Save to `{@artifacts_path}/plan.md`.
 
-### [ ] Step: Implementation
+### [ ] Task: Project Bootstrap
+- Create Vite React TS app skeleton; add TypeScript config, ESLint + Prettier, Vitest, React Testing Library, Playwright
+- Add dependencies: three, @react-three/fiber, @react-three/drei, zustand, immer, zod, jszip, gifenc or gif.js
+- Scripts: build, dev, lint, typecheck, test, e2e
+- Verify: run `dev` boots app; `lint` passes; `typecheck` passes; `test` runs zero tests
 
-This step should be replaced with detailed implementation tasks from the Planning step.
+### [ ] Task: Base Types & Schemas
+- Add `src/types/{model.ts,pose.ts,project.ts}` per spec interfaces
+- Add zod schemas for Project and settings; export TypeScript types
+- Verify: typecheck succeeds; unit test compiles types
 
-If Planning didn't replace this step, execute the tasks in `{@artifacts_path}/plan.md`, updating checkboxes as you go. Run planned tests/lint and record results in plan.md.
+### [ ] Task: State Store
+- Implement `src/state/store.ts` with model, poses, keyframes, playback, UI state; use Zustand + Immer
+- Add `src/state/selectors.ts` for memoized selectors
+- Verify: unit tests for reducers/actions; time travel sanity (undo placeholder)
+
+### [ ] Task: Model Loading & Validation
+- Implement `src/three/loaders/modelLoader.ts` supporting GLTF/GLB primary; FBX/OBJ best-effort
+- Detect rig: SkinnedMesh + Skeleton; build bone map; texture auto-mapping by filename suffix
+- Verify: load sample glTF rigs; warn on non-rigged; detect bones and show counts
+
+### [ ] Task: Viewport & Scene
+- Implement `src/three/canvas/Scene.tsx` with R3F Canvas, OrbitControls, studio lighting, grid helpers
+- Add `src/components/Viewport.tsx` mounting the scene and overlays
+- Verify: 60 FPS idle with empty scene; camera controls functional
+
+### [ ] Task: Import UI
+- Implement `src/components/ImportDialog.tsx` with drag-and-drop and file picker; show validations
+- Wire to loader; set model into store
+- Verify: drop a GLB and see the model in the viewport; errors surface in Notifications
+
+### [ ] Task: Skeleton Visualization & Selection
+- Add SkeletonHelper toggle; implement `src/components/HierarchyTree.tsx` to browse/select bones
+- Highlight selected bone in scene
+- Verify: selecting bones highlights and updates inspector
+
+### [ ] Task: Pose Editing (FK)
+- Add TransformControls bound to selected bone; clamp rotations by `lib/constraints/jointLimits.ts`
+- Root translation allowed; other bones rotation-only
+- Verify: rotate limb bones and observe updates; joint limits enforced
+
+### [ ] Task: Pose Persistence
+- Define `Pose` capture/apply utilities in `src/types/pose.ts` helpers
+- Save/restore poses in store; copy/paste between keyframes
+- Verify: create pose A/B/C and switch reliably; values stable across switches
+
+### [ ] Task: Timeline & Keyframes
+- Implement `src/components/Timeline.tsx` with three fixed slots (Begin/Middle/End), durations, easing per segment
+- Scrubbing and play/pause/loop in `src/components/PlaybackControls.tsx`
+- Verify: scrub timeline and see pose blending (temporary linear)
+
+### [ ] Task: Interpolators & Constraint Pass
+- Implement `src/three/animation/interpolators.ts` for quaternion slerp, root lerp, cubic easing
+- Constraint-aware pass to clamp post-interpolation
+- Verify: unit tests for slerp accuracy and easing curves; visual smooth playback
+
+### [ ] Task: Loop Alignment
+- Implement `src/three/animation/looping.ts` to snap End to Start with blend tolerance when loop is enabled
+- Verify: with loop on, End≈Start; visual seam-free cycle
+
+### [ ] Task: IK Solver Core
+- Implement FABRIK or CCD in `src/three/ik/solver.ts`; define limb chains and limits
+- Verify: unit tests on simple chains converge within tolerance; no NaNs
+
+### [ ] Task: IK UI & Effector Drag
+- Add draggable effectors for wrist/ankle; raycast targets; per-limb FK/IK toggle in `PosePanel`
+- Solve during drag; write back bone rotations
+- Verify: drag wrist target and watch arm follow; joint limits respected
+
+### [ ] Task: Multi-Pane Previews
+- Implement `src/components/PreviewPanes.tsx` rendering Begin/Middle/End subviews via shared scene with pose overrides
+- Verify: three panes render different keyframe poses; performance acceptable
+
+### [ ] Task: Export — GLB
+- Implement `src/three/exporters/gltfExport.ts` baking sampled keyframes into one AnimationClip; export GLB
+- Verify: re-import exported GLB and play clip correctly
+
+### [ ] Task: Export — Video
+- Implement `src/three/exporters/videoExport.ts` using offscreen canvas + MediaRecorder; WebM VP8/VP9; feature-detect MP4
+- Verify: produce playable WebM at chosen fps; fallback messaging for unsupported types
+
+### [ ] Task: Export — Image Sequence & GIF
+- Implement `src/three/exporters/imageSequenceExport.ts` to render PNG frames and zip via JSZip; optional GIF via gifenc
+- Verify: ZIP opens with correct frame count; optional GIF animates as expected
+
+### [ ] Task: Export — Project JSON
+- Implement `src/three/exporters/jsonExport.ts` for save/load project (paths, poses, keyframes, settings)
+- Verify: save project, reload page, load project and recover state
+
+### [ ] Task: Project Persistence & Autosave
+- Implement IndexedDB storage; autosave on changes; recent projects list
+- Verify: refresh recovery; storage quotas handled with warnings
+
+### [ ] Task: Undo/Redo
+- Implement command pattern over store mutations with bounded history
+- Verify: Ctrl+Z/Ctrl+Y revert/apply edits for pose and timeline changes
+
+### [ ] Task: Accessibility & Keyboard
+- Use Radix/headless primitives for focus; shortcuts for play/pause, next/prev keyframe, reset view
+- Verify: tab order sensible; ARIA roles on dialogs and lists; keyboard-only flow works
+
+### [ ] Task: Unit Tests
+- Interpolators, IK edge cases, loop alignment, store reducers
+- Verify: vitest suite green; coverage for math utilities
+
+### [ ] Task: Component Tests
+- Timeline interactions, PosePanel actions, ImportDialog validations
+- Verify: React Testing Library tests pass and are stable
+
+### [ ] Task: E2E Flow
+- Playwright test: import → create three poses → play/loop → export GLB/WebM
+- Verify: e2e passes in Chromium CI
+
+### [ ] Task: Performance Budget
+- Audit renders; memoize selectors; ensure ≤16 ms/frame idle with reference rig; offload encoding to worker if needed
+- Verify: FPS overlay and profiling meet targets
