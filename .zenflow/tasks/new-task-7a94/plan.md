@@ -65,6 +65,7 @@ Save to `{@artifacts_path}/plan.md`.
 - Verify: typecheck succeeds; unit test compiles types
 
 ### [ ] Task: State Store
+<!-- chat-id: 1047e3d5-72d8-49d5-82eb-a8b140eee6e4 -->
 - Implement `src/state/store.ts` with model, poses, keyframes, playback, UI state; use Zustand + Immer
 - Add `src/state/selectors.ts` for memoized selectors
 - Verify: unit tests for reducers/actions; time travel sanity (undo placeholder)
